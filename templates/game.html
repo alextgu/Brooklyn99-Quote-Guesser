@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Who Said It? - Holt Bot{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-12">
+    <!-- Game Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-holt-navy mb-2">
+            "Who Said It?"
+        </h1>
+        <p class="text-gray-600">
+            Identify the Brooklyn Nine-Nine character who spoke these words.
+        </p>
+    </div>
+    
+    <!-- Game Card -->
+    <div class="bg-white rounded-lg shadow-xl p-6 md:p-8 border-t-4 border-holt-gold" id="game-card">
+        <!-- Quote Display -->
+        <div class="mb-8">
+            <div class="text-xs uppercase tracking-wider text-gray-400 mb-2" id="episode-label">
+                Episode: <span id="episode-name">Loading...</span>
+            </div>
+            <blockquote class="text-xl md:text-2xl text-holt-gray leading-relaxed italic" id="quote-text">
+                Loading quote...
+            </blockquote>
+        </div>
+        
+        <!-- Answer Input -->
+        <div class="relative mb-6">
+            <label for="guess" class="block text-sm font-semibold text-holt-navy mb-2">
+                Your Answer:
+            </label>
+            <input 
+                type="text" 
+                id="guess" 
+                placeholder="Type a character name..."
+                autocomplete="off"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors text-lg"
+            >
+            <!-- Autocomplete Dropdown -->
+            <div id="autocomplete-list" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 hidden">
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <button 
+            id="submit-btn"
+            class="w-full bg-holt-navy text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            Submit Answer
+        </button>
+        
+        <!-- Result Display -->
+        <div id="result" class="mt-6 p-4 rounded-lg hidden">
+        </div>
+        
+        <!-- Next Quote Button -->
+        <button 
+            id="next-btn"
+            class="w-full mt-4 bg-holt-gold text-holt-navy py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all hidden"
+        >
+            Next Quote
+        </button>
+    </div>
+    
+    <!-- Score Display -->
+    <div class="mt-8 text-center">
+        <div class="inline-flex items-center gap-6 bg-white rounded-lg shadow px-6 py-3">
+            <div>
+                <span class="text-2xl font-bold text-green-600" id="correct-count">0</span>
+                <span class="text-gray-500 text-sm block">Correct</span>
+            </div>
+            <div class="w-px h-10 bg-gray-200"></div>
+            <div>
+                <span class="text-2xl font-bold text-red-500" id="incorrect-count">0</span>
+                <span class="text-gray-500 text-sm block">Incorrect</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Section -->
+    <div class="mt-12">
+        <h2 class="text-xl font-bold text-holt-navy mb-4">Deep-Search Quote Database</h2>
+        <div class="bg-white rounded-lg shadow p-6">
+            <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Search for quotes..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors"
+            >
+            <div id="search-results" class="mt-4 space-y-3 hidden">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/game.js"></script>
+{% endblock %}

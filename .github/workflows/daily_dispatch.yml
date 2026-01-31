@@ -1,0 +1,52 @@
+# ============================================================
+# The Morning Alarm - Daily Dispatch CRON
+# ============================================================
+# Triggers at 08:00 UTC daily to send the Daily Challenge email
+# to all confirmed users.
+# ============================================================
+
+name: Daily Dispatch
+
+on:
+  # Manual trigger for testing
+  workflow_dispatch:
+  
+  # Scheduled trigger: 08:00 UTC every day
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  dispatch:
+    name: Send Daily Dispatch
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Efficiency Sweep (Purge unconfirmed users)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python scripts/run_purge.py
+
+      - name: Run Daily Dispatch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BASE_URL: ${{ secrets.BASE_URL }}
+          B99_API_URL: ${{ secrets.B99_API_URL }}
+        run: python scripts/run_daily.py

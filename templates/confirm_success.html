@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Email Confirmed - Holt Bot{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-16 text-center">
+    <div class="bg-white rounded-lg shadow-xl p-8 md:p-12 border-t-4 border-green-500">
+        <div class="text-6xl mb-6">🎖️</div>
+        
+        <h1 class="text-2xl font-bold text-holt-navy mb-4">
+            Email Confirmed
+        </h1>
+        
+        <p class="text-gray-600 mb-6">
+            Your enrollment is now complete.
+        </p>
+        
+        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+            <p class="text-holt-navy italic">
+                "Congratulations. You have demonstrated the discipline required to click a hyperlink. I am... impressed."
+            </p>
+            <p class="text-gray-500 text-sm mt-3">— Captain Holt</p>
+        </div>
+        
+        <div class="space-y-4">
+            <p class="text-gray-600 text-sm">
+                You will now receive daily dispatches at <strong>0800 hours</strong>.
+            </p>
+            
+            <a 
+                href="/game"
+                class="inline-block bg-holt-gold text-holt-navy px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+            >
+                Play "Who Said It?"
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

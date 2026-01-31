@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmation Failed - Holt Bot{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-16 text-center">
+    <div class="bg-white rounded-lg shadow-xl p-8 md:p-12 border-t-4 border-red-500">
+        <div class="text-6xl mb-6">⚠️</div>
+        
+        <h1 class="text-2xl font-bold text-holt-navy mb-4">
+            Confirmation Failed
+        </h1>
+        
+        <p class="text-gray-600 mb-6">
+            {{ message }}
+        </p>
+        
+        <div class="bg-gray-50 rounded-lg p-6 text-left mb-6">
+            <h2 class="font-bold text-holt-navy mb-3">Possible Causes:</h2>
+            <ul class="text-gray-600 text-sm space-y-2">
+                <li>• Email address not found in our records</li>
+                <li>• Email already confirmed</li>
+                <li>• Confirmation link expired (48 hours)</li>
+            </ul>
+        </div>
+        
+        <a 
+            href="/"
+            class="inline-block bg-holt-navy text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+        >
+            Return to Enrollment
+        </a>
+    </div>
+</div>
+{% endblock %}
