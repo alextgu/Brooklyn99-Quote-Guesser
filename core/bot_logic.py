@@ -1,84 +1,130 @@
 """
 Bot logic for generating daily Holt messages.
-Uses unusual pools of phrases: openers, chants, and reflections.
+Styled after Captain Holt's formal text messaging patterns.
+
+Reference: Holt's scene reminding someone they are more than a number,
+repeating their name with affirmations. Formal, no contractions,
+name used frequently in that characteristic Holt cadence.
 """
 
 import random
 
-# Unusual phrase pools
+# Opening lines (sets the context)
 OPENERS = [
-    "The morning fog parts, revealing your path",
-    "A peculiar wind stirs the leaves today",
-    "The old clock tower chimes for you alone",
-    "Somewhere, a lighthouse blinks in your honor",
-    "The universe hums a frequency only you can hear",
-    "A raven lands on a wire, watching with knowing eyes",
-    "The tide shifts, carrying whispers of your name",
-    "An ancient tree bends slightly in your direction",
-    "The stars rearranged themselves last night for you",
-    "A forgotten bell rings in a distant valley",
+    "{name}, I must remind you of something important.",
+    "{name}. I have been meaning to tell you this.",
+    "It has come to my attention, {name}, that you may need a reminder.",
+    "{name}, allow me to state some facts.",
+    "I am writing to you today, {name}, because you need to hear this.",
+    "{name}. Listen carefully.",
 ]
 
-CHANTS = [
-    "Forward, ever forward, through the mist",
-    "One step, then another, then the mountain moves",
-    "The river does not stop; neither shall you",
-    "Breathe deep the strange air of becoming",
-    "Let the old skin fall; the new one fits better",
-    "The fire burns low but never dies",
-    "Roots grow deeper in darkness",
-    "The owl asks 'who' but you already know",
-    "Silence is the loudest teacher",
-    "The path appears only when you walk",
+# Affirmation lines - each ends with the name for that repetitive Holt cadence
+# These are mixed and 5 are chosen randomly
+AFFIRMATIONS = [
+    "You are not merely a statistic, {name}.",
+    "You are more than just a number, {name}.",
+    "You are capable of extraordinary things, {name}.",
+    "You are resilient, {name}.",
+    "You are not defined by your setbacks, {name}.",
+    "You are stronger than you realize, {name}.",
+    "You are worthy of success, {name}.",
+    "You are not alone in this endeavor, {name}.",
+    "You are making progress, {name}.",
+    "You are precisely where you need to be, {name}.",
+    "You are someone who finishes what they start, {name}.",
+    "You are a person of value, {name}.",
+    "You are not your worst day, {name}.",
+    "You are improving with each passing moment, {name}.",
+    "You are demonstrating admirable fortitude, {name}.",
+    "You are exceeding expectations, {name}.",
+    "You are building something meaningful, {name}.",
+    "You are the architect of your own success, {name}.",
+    "You are disciplined, {name}.",
+    "You are persistent, {name}.",
+    "You are {name}.",
 ]
 
-REFLECTIONS = [
-    "Consider: what grows when you are not looking?",
-    "The mirror shows today, not tomorrow",
-    "Every ending is a door painted to look like a wall",
-    "You have survived every day so far. The odds are good.",
-    "The seeds you planted in confusion bloom in clarity",
-    "Rest is not retreat; it is preparation",
-    "Your shadow proves you stand in light",
-    "The longest journeys begin with forgetting the map",
-    "What feels like loss is often rearrangement",
-    "The universe is not against you; it is indifferent, and that is freedom",
+# Closings (heavy on name usage)
+CLOSINGS = [
+    "That is all, {name}. Remember this, {name}.",
+    "Do not forget this, {name}. You are {name}.",
+    "Remember who you are, {name}. You are {name}.",
+    "Proceed with confidence, {name}. I believe in you, {name}.",
+    "I believe in you, {name}. That is not something I say lightly, {name}.",
+    "Now go forth, {name}. You are ready, {name}.",
+    "You have my full support, {name}. Always, {name}.",
+    "This is the truth, {name}. Accept it, {name}.",
 ]
 
 
 def generate_holt_message(name: str, day_count: int) -> str:
     """
-    Generates a daily message for a user based on their day count.
-    Combines an opener, a chant, and a reflection into an unusual daily dispatch.
+    Generates a daily Captain Holt-styled motivational message.
+    
+    The message mimics Holt's repetitive affirmation style:
+    - 5 lines of "You are [quality], [Name]."
+    - Uses the recipient's name frequently (Holt's signature move)
+    - No contractions
+    - Formal, supportive, repetitive cadence
     
     Args:
         name: The user's name
         day_count: Number of days since signup
         
     Returns:
-        A formatted message string
+        A formatted message string in Holt's style
     """
-    # Use day_count as seed component for some consistency, but add randomness
+    # Use name + day as seed for consistency (same message each day for same user)
     random.seed(f"{name}-{day_count}")
     
-    opener = random.choice(OPENERS)
-    chant = random.choice(CHANTS)
-    reflection = random.choice(REFLECTIONS)
+    # Build the message
+    opener = random.choice(OPENERS).format(name=name, day=day_count)
     
-    # Reset random seed to not affect other random calls
+    # Pick 5 random affirmations (no repeats)
+    chosen_affirmations = random.sample(AFFIRMATIONS, 5)
+    affirmation_lines = [a.format(name=name) for a in chosen_affirmations]
+    
+    closing = random.choice(CLOSINGS).format(name=name, day=day_count)
+    
+    # Reset random seed
     random.seed()
     
-    message = f"""Greetings, {name}.
+    # Format: opener, blank line, 5 affirmations, blank line, closing, signature
+    affirmations_block = "\n".join(affirmation_lines)
+    
+    message = f"""{opener}
 
-Day {day_count} of your journey.
+{affirmations_block}
 
-{opener}.
+{closing}
 
-{chant}.
-
-{reflection}
-
-Until tomorrow,
-— Holt"""
+Sincerely,
+Captain Raymond Holt"""
 
     return message
+
+
+def generate_game_prompt(name: str) -> str:
+    """
+    Generate a Holt-styled prompt for the daily game.
+    
+    Args:
+        name: The user's name
+        
+    Returns:
+        A formal invitation to play the quote game
+    """
+    prompts = [
+        f"{name}, I have prepared a challenge for you. Identify which member of the Nine-Nine spoke the following words.",
+        f"Additionally, {name}, I present you with today's intellectual exercise. Name the speaker.",
+        f"{name}, your daily assessment awaits below. Demonstrate your knowledge of the precinct.",
+        f"Now, {name}, for today's game: identify the individual who uttered this statement.",
+        f"I have selected a quote for your consideration, {name}. Determine its origin.",
+    ]
+    
+    random.seed(f"{name}-game-prompt")
+    prompt = random.choice(prompts)
+    random.seed()
+    
+    return prompt

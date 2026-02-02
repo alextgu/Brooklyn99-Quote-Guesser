@@ -26,7 +26,9 @@ class Settings:
     BASE_URL: str = os.environ.get("BASE_URL", "http://localhost:8000")
     DEBUG: bool = os.environ.get("DEBUG", "false").lower() == "true"
 
-    # --- B99 Quotes API ---
+    # --- B99 Quotes ---
+    B99_MODE: str = os.environ.get("B99_MODE", "local")  # "local" or "api"
+    B99_QUOTES_JSON: str | None = os.environ.get("B99_QUOTES_JSON")
     B99_API_URL: str = os.environ.get(
         "B99_API_URL", "https://brooklyn-nine-nine-quotes.herokuapp.com/api/v1"
     )

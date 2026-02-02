@@ -5,26 +5,29 @@
 
 // Game State
 let currentAnswer = null;
-let correctCount = 0;
-let incorrectCount = 0;
+let currentEpisode = null;
+let currentSeason = null;
+let currentStreak = 0;
+let bestStreak = 0;
 let characters = [];
+let episodesBySeason = {};
 
 // DOM Elements
 const quoteText = document.getElementById('quote-text');
-const episodeName = document.getElementById('episode-name');
 const guessInput = document.getElementById('guess');
+const guessSeason = document.getElementById('guess-season');
+const guessEpisode = document.getElementById('guess-episode');
 const submitBtn = document.getElementById('submit-btn');
 const nextBtn = document.getElementById('next-btn');
 const resultDiv = document.getElementById('result');
 const autocompleteList = document.getElementById('autocomplete-list');
-const correctCountEl = document.getElementById('correct-count');
-const incorrectCountEl = document.getElementById('incorrect-count');
-const searchInput = document.getElementById('search-input');
-const searchResults = document.getElementById('search-results');
+const streakCountEl = document.getElementById('streak-count');
+const bestStreakEl = document.getElementById('best-streak');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadCharacters();
+    loadEpisodes();
     loadNewQuote();
     setupEventListeners();
 });
@@ -41,19 +44,60 @@ async function loadCharacters() {
     }
 }
 
+// Load episodes grouped by season
+async function loadEpisodes() {
+    try {
+        const response = await fetch('/game/episodes');
+        const data = await response.json();
+        episodesBySeason = data.episodes_by_season || {};
+        
+        // Populate season dropdown
+        if (guessSeason) {
+            guessSeason.innerHTML = '<option value="">Select season...</option>';
+            for (let s = 1; s <= 8; s++) {
+                if (episodesBySeason[s]) {
+                    guessSeason.innerHTML += `<option value="${s}">Season ${s}</option>`;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load episodes:', error);
+    }
+}
+
+// Update episode dropdown when season changes
+function updateEpisodeDropdown(season) {
+    if (!guessEpisode) return;
+    
+    guessEpisode.innerHTML = '<option value="">Select episode...</option>';
+    
+    if (season && episodesBySeason[season]) {
+        episodesBySeason[season].forEach(ep => {
+            guessEpisode.innerHTML += `<option value="${ep}">${ep}</option>`;
+        });
+    }
+}
+
 // Load a new quote
 async function loadNewQuote() {
     quoteText.textContent = 'Loading quote...';
-    episodeName.textContent = 'Loading...';
     guessInput.value = '';
+    if (guessSeason) guessSeason.value = '';
+    if (guessEpisode) {
+        guessEpisode.innerHTML = '<option value="">Select episode...</option>';
+        guessEpisode.value = '';
+    }
     guessInput.disabled = false;
     submitBtn.disabled = false;
     nextBtn.classList.add('hidden');
     resultDiv.classList.add('hidden');
     currentAnswer = null;
+    currentEpisode = null;
+    currentSeason = null;
 
     try {
-        const response = await fetch('/game/quote');
+        // Always hide episode hint - player must guess both
+        const response = await fetch('/game/quote?hard_mode=true');
         const data = await response.json();
 
         if (data.error) {
@@ -62,8 +106,9 @@ async function loadNewQuote() {
         }
 
         quoteText.textContent = `"${data.text}"`;
-        episodeName.textContent = data.episode;
-        currentAnswer = data.answer;
+        currentAnswer = data.answer_character;
+        currentEpisode = data.answer_episode;
+        currentSeason = data.answer_season;
     } catch (error) {
         console.error('Failed to load quote:', error);
         quoteText.textContent = 'Failed to load quote. Please try again.';
@@ -81,6 +126,13 @@ function setupEventListeners() {
     // Next quote
     nextBtn.addEventListener('click', loadNewQuote);
 
+    // Season change -> update episodes
+    if (guessSeason) {
+        guessSeason.addEventListener('change', (e) => {
+            updateEpisodeDropdown(e.target.value);
+        });
+    }
+
     // Autocomplete
     guessInput.addEventListener('input', handleAutocomplete);
     guessInput.addEventListener('focus', handleAutocomplete);
@@ -88,13 +140,6 @@ function setupEventListeners() {
         if (!guessInput.contains(e.target) && !autocompleteList.contains(e.target)) {
             autocompleteList.classList.add('hidden');
         }
-    });
-
-    // Search
-    let searchTimeout;
-    searchInput.addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(handleSearch, 300);
     });
 }
 
@@ -143,29 +188,56 @@ async function submitAnswer() {
     guessInput.disabled = true;
 
     try {
-        const response = await fetch(`/game/verify?guess=${encodeURIComponent(guess)}&answer=${encodeURIComponent(currentAnswer)}`, {
+        // Build query params - check character + episode
+        let params = `guess=${encodeURIComponent(guess)}&answer=${encodeURIComponent(currentAnswer)}`;
+        params += `&answer_episode=${encodeURIComponent(currentEpisode || '')}`;
+        
+        if (guessEpisode && guessEpisode.value) {
+            params += `&guess_episode=${encodeURIComponent(guessEpisode.value)}`;
+        }
+        
+        const response = await fetch(`/game/verify?${params}`, {
             method: 'POST'
         });
         const data = await response.json();
 
-        // Update score
-        if (data.correct) {
-            correctCount++;
+        // Both character AND episode must be correct for streak
+        const isCorrect = data.character_correct && data.episode_correct;
+        
+        if (isCorrect) {
+            currentStreak++;
+            if (currentStreak > bestStreak) {
+                bestStreak = currentStreak;
+            }
             resultDiv.className = 'mt-6 p-4 rounded-lg bg-green-50 border border-green-200';
         } else {
-            incorrectCount++;
+            currentStreak = 0;
             resultDiv.className = 'mt-6 p-4 rounded-lg bg-red-50 border border-red-200';
         }
 
-        correctCountEl.textContent = correctCount;
-        incorrectCountEl.textContent = incorrectCount;
+        if (streakCountEl) streakCountEl.textContent = currentStreak;
+        if (bestStreakEl) bestStreakEl.textContent = bestStreak;
 
-        // Show result
-        resultDiv.innerHTML = `
-            <p class="${data.correct ? 'text-green-800' : 'text-red-800'} font-semibold">
-                ${data.message}
-            </p>
-        `;
+        // Build result message
+        let resultHtml = '';
+        if (isCorrect) {
+            resultHtml = `<p class="text-green-800 font-semibold">Correct! ${currentAnswer} - ${currentEpisode}</p>`;
+        } else {
+            resultHtml = `<p class="text-red-800 font-semibold">`;
+            if (data.character_correct) {
+                resultHtml += `Character: ✓ Correct<br>`;
+            } else {
+                resultHtml += `Character: ✗ ${currentAnswer}<br>`;
+            }
+            if (data.episode_correct) {
+                resultHtml += `Episode: ✓ Correct`;
+            } else {
+                resultHtml += `Episode: ✗ ${currentEpisode} (Season ${currentSeason})`;
+            }
+            resultHtml += `</p>`;
+        }
+        
+        resultDiv.innerHTML = resultHtml;
         resultDiv.classList.remove('hidden');
         nextBtn.classList.remove('hidden');
 
@@ -179,36 +251,3 @@ async function submitAnswer() {
     }
 }
 
-// Handle quote search
-async function handleSearch() {
-    const query = searchInput.value.trim();
-    
-    if (query.length < 2) {
-        searchResults.classList.add('hidden');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/game/search?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-
-        if (data.quotes && data.quotes.length > 0) {
-            searchResults.innerHTML = data.quotes.map(q => `
-                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p class="text-gray-700 italic">"${q.text}"</p>
-                    <p class="text-sm text-gray-500 mt-2">
-                        <span class="font-semibold">${q.character}</span> • ${q.episode}
-                    </p>
-                </div>
-            `).join('');
-            searchResults.classList.remove('hidden');
-        } else {
-            searchResults.innerHTML = '<p class="text-gray-500 text-center py-4">No quotes found.</p>';
-            searchResults.classList.remove('hidden');
-        }
-    } catch (error) {
-        console.error('Search failed:', error);
-        searchResults.innerHTML = '<p class="text-red-500 text-center py-4">Search failed. Please try again.</p>';
-        searchResults.classList.remove('hidden');
-    }
-}

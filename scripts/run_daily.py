@@ -30,48 +30,6 @@ from core.quotes import get_random_quote_sync
 from core.mailer import send_daily_email
 
 
-def build_daily_message(name: str, day_count: int) -> str:
-    """
-    Build the complete daily message with:
-    1. Quote of the Day challenge
-    2. Personalized Holt compliment
-    """
-    # Get the Holt compliment
-    holt_message = generate_holt_message(name, day_count)
-
-    # Get a random B99 quote for the challenge
-    quote = get_random_quote_sync()
-
-    if quote:
-        # Mask the speaker name for the challenge
-        challenge_section = f"""
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📺 TODAY'S CHALLENGE: "Who Said It?"
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Episode: {quote.episode}
-
-"{quote.masked_text()}"
-
-Can you identify the speaker? 
-Visit the website to submit your answer.
-"""
-    else:
-        challenge_section = """
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📺 QUOTE SERVICE UNAVAILABLE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The quote retrieval system is temporarily offline.
-Captain Holt is... displeased.
-"""
-
-    # Combine the sections
-    full_message = f"""{holt_message}
-
-{challenge_section}
-"""
-    return full_message
 
 
 def run_daily_dispatch():
@@ -89,32 +47,48 @@ def run_daily_dispatch():
 
     print(f"Found {len(users)} user(s) to notify.")
 
+    # 2. Fetch TODAY'S universal quote (same for all users)
+    daily_quote = get_random_quote_sync()
+    if daily_quote:
+        print(f"Today's quote: \"{daily_quote.text[:50]}...\" - {daily_quote.character}")
+    else:
+        print("Warning: Could not fetch daily quote")
+
     success_count = 0
     fail_count = 0
 
-    # 2. Loop through users and send emails
+    # 3. Loop through users and send emails
     for user in users:
         user_id = user.get("id")
         name = user.get("name", "Friend")
         email = user.get("email")
         signup_date = user.get("signup_date")
+        current_streak = user.get("current_streak", 0) or 0
+        best_streak = user.get("best_streak", 0) or 0
 
         if not email:
             print(f"  Skipping user {user_id}: no email")
             continue
 
-        # 3. Calculate day count since signup
+        # 4. Calculate day count since signup
         day_count = calculate_day_count(signup_date)
 
-        # 4. Generate the complete message with quote challenge
-        message = build_daily_message(name, day_count)
+        # 5. Generate the Holt message (affirmations only)
+        holt_message = generate_holt_message(name, day_count)
 
-        # 5. Send the email
-        print(f"  Sending to {email} (Day {day_count})...", end=" ")
-        sent = send_daily_email(email, name, message)
+        # 6. Send the email with quote and stats
+        print(f"  Sending to {email} (Day {day_count}, Streak: {current_streak})...", end=" ")
+        sent = send_daily_email(
+            email=email,
+            name=name,
+            message=holt_message,
+            quote_text=daily_quote.masked_text() if daily_quote else None,
+            current_streak=current_streak,
+            best_streak=best_streak,
+        )
 
         if sent:
-            # 6. Update last_notified_at (Anti-Duplicate Guard)
+            # 7. Update last_notified_at (Anti-Duplicate Guard)
             update_last_notified(user_id)
             print("OK")
             success_count += 1

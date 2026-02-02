@@ -10,7 +10,7 @@
             "Who Said It?"
         </h1>
         <p class="text-gray-600">
-            Identify the Brooklyn Nine-Nine character who spoke these words.
+            Identify the character and episode from this Brooklyn Nine-Nine quote.
         </p>
     </div>
     
@@ -18,18 +18,15 @@
     <div class="bg-white rounded-lg shadow-xl p-6 md:p-8 border-t-4 border-holt-gold" id="game-card">
         <!-- Quote Display -->
         <div class="mb-8">
-            <div class="text-xs uppercase tracking-wider text-gray-400 mb-2" id="episode-label">
-                Episode: <span id="episode-name">Loading...</span>
-            </div>
             <blockquote class="text-xl md:text-2xl text-holt-gray leading-relaxed italic" id="quote-text">
                 Loading quote...
             </blockquote>
         </div>
         
-        <!-- Answer Input -->
-        <div class="relative mb-6">
+        <!-- Character Input -->
+        <div class="relative mb-4">
             <label for="guess" class="block text-sm font-semibold text-holt-navy mb-2">
-                Your Answer:
+                Character:
             </label>
             <input 
                 type="text" 
@@ -38,8 +35,33 @@
                 autocomplete="off"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors text-lg"
             >
-            <!-- Autocomplete Dropdown -->
             <div id="autocomplete-list" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 hidden">
+            </div>
+        </div>
+        
+        <!-- Season & Episode Selectors -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="guess-season" class="block text-sm font-semibold text-holt-navy mb-2">
+                    Season:
+                </label>
+                <select 
+                    id="guess-season"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors"
+                >
+                    <option value="">Select season...</option>
+                </select>
+            </div>
+            <div>
+                <label for="guess-episode" class="block text-sm font-semibold text-holt-navy mb-2">
+                    Episode:
+                </label>
+                <select 
+                    id="guess-episode"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors"
+                >
+                    <option value="">Select episode...</option>
+                </select>
             </div>
         </div>
         
@@ -64,32 +86,17 @@
         </button>
     </div>
     
-    <!-- Score Display -->
+    <!-- Streak Display -->
     <div class="mt-8 text-center">
         <div class="inline-flex items-center gap-6 bg-white rounded-lg shadow px-6 py-3">
             <div>
-                <span class="text-2xl font-bold text-green-600" id="correct-count">0</span>
-                <span class="text-gray-500 text-sm block">Correct</span>
+                <span class="text-2xl font-bold text-holt-gold" id="streak-count">0</span>
+                <span class="text-gray-500 text-sm block">🔥 Streak</span>
             </div>
             <div class="w-px h-10 bg-gray-200"></div>
             <div>
-                <span class="text-2xl font-bold text-red-500" id="incorrect-count">0</span>
-                <span class="text-gray-500 text-sm block">Incorrect</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Search Section -->
-    <div class="mt-12">
-        <h2 class="text-xl font-bold text-holt-navy mb-4">Deep-Search Quote Database</h2>
-        <div class="bg-white rounded-lg shadow p-6">
-            <input 
-                type="text" 
-                id="search-input" 
-                placeholder="Search for quotes..."
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-holt-gold focus:border-holt-gold transition-colors"
-            >
-            <div id="search-results" class="mt-4 space-y-3 hidden">
+                <span class="text-2xl font-bold text-purple-600" id="best-streak">0</span>
+                <span class="text-gray-500 text-sm block">Best</span>
             </div>
         </div>
     </div>
@@ -97,5 +104,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/game.js"></script>
+<script src="/static/js/game.js?v=3"></script>
 {% endblock %}

@@ -21,7 +21,7 @@ from core.config import settings
 # --- App Setup ---
 app = FastAPI(
     title="Holt Bot",
-    description="A formal, high-efficiency bot for Brooklyn Nine-Nine enthusiasts.",
+    description="Captain Dad will encourage you to be happy",
     version="1.0.0",
 )
 
@@ -49,6 +49,19 @@ async def landing_page(request: Request):
     Minimalist Landing Page: A formal, high-efficiency UI for user enrollment.
     """
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+# --- Personalized Holt Image ---
+@app.get("/holt/{name}", response_class=HTMLResponse)
+async def holt_image(request: Request, name: str):
+    """
+    Dynamic page showing Holt GIF with personalized name overlay.
+    Used in emails: {BASE_URL}/holt/Rosa → Shows GIF with "Rosa" overlaid
+    """
+    return templates.TemplateResponse("holt_image.html", {
+        "request": request,
+        "name": name,
+    })
 
 
 # --- Health Check ---

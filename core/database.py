@@ -29,19 +29,22 @@ if settings.supabase_admin_configured:
 def add_user_to_db(name: str, email: str):
     """
     Takes user info and saves it to the 'users' table in Supabase.
+    Uses admin client to bypass RLS.
     """
-    if supabase is None:
+    if supabase_admin is None:
+        print("Database Error: Admin client not configured")
         return None
     try:
         data = {
             "name": name, 
             "email": email, 
-            "confirmed": False  # New users start unconfirmed
+            "confirmed": False,  # New users start unconfirmed
+            "signup_date": datetime.utcnow().isoformat()
         }
         # .table("users") targets the table you created
         # .insert(data) adds the new row
         # .execute() tells Supabase to perform the action
-        response = supabase.table("users").insert(data).execute()
+        response = supabase_admin.table("users").insert(data).execute()
         return response
     except Exception as e:
         print(f"Database Error: {e}")
@@ -51,13 +54,15 @@ def add_user_to_db(name: str, email: str):
 def confirm_user(email: str):
     """
     Updates the user's confirmed status to True in the 'users' table.
+    Uses admin client to bypass RLS.
     Returns the response if successful, None otherwise.
     """
-    if supabase is None:
+    if supabase_admin is None:
+        print("Database Error: Admin client not configured")
         return None
     try:
         response = (
-            supabase.table("users")
+            supabase_admin.table("users")
             .update({"confirmed": True})
             .eq("email", email)
             .execute()
