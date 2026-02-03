@@ -76,6 +76,6 @@ async def health_check():
         "services": {
             "supabase": settings.supabase_configured,
             "supabase_admin": settings.supabase_admin_configured,
-            "resend": settings.resend_configured,
+            "kit": settings.kit_configured,
         },
     }

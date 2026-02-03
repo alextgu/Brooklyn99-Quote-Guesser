@@ -18,9 +18,10 @@ class Settings:
     SUPABASE_ANON_KEY: str | None = os.environ.get("SUPABASE_ANON_KEY")
     SUPABASE_SERVICE_KEY: str | None = os.environ.get("SUPABASE_SERVICE_KEY")
 
-    # --- Resend ---
-    RESEND_API_KEY: str | None = os.environ.get("RESEND_API_KEY")
-    EMAIL_FROM: str = os.environ.get("EMAIL_FROM", "Holt <onboarding@resend.dev>")
+    # --- Kit (ConvertKit) ---
+    KIT_API_KEY: str | None = os.environ.get("KIT_PUBLIC_API_KEY")
+    KIT_API_SECRET: str | None = os.environ.get("KIT_SECRET_API_KEY")
+    EMAIL_FROM: str = os.environ.get("EMAIL_FROM", "Captain Holt <holt@yourdomain.com>")
 
     # --- App ---
     BASE_URL: str = os.environ.get("BASE_URL", "http://localhost:8000")
@@ -47,9 +48,9 @@ class Settings:
         return bool(self.SUPABASE_URL and self.SUPABASE_SERVICE_KEY)
 
     @property
-    def resend_configured(self) -> bool:
-        """Check if Resend is properly configured."""
-        return bool(self.RESEND_API_KEY)
+    def kit_configured(self) -> bool:
+        """Check if Kit (ConvertKit) is properly configured."""
+        return bool(self.KIT_API_KEY)
 
 
 @lru_cache
