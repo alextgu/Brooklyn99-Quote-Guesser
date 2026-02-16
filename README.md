@@ -2,6 +2,8 @@
 
 A "Who Said It?" game for Brooklyn Nine-Nine fans. Guess the character and episode from each quote and build your streak.
 
+![Game screenshot](src/game.png)
+
 ---
 
 ## Features
@@ -24,13 +26,14 @@ holt/
 │   ├── episodes.py          # Episode metadata
 │   └── quotes.py            # B99 quotes loader
 ├── data/
-│   └── quotes.json            # Full B99 quotes dataset
+│   └── quotes.json          # Full B99 quotes dataset
+├── src/
+│   └── game.png             # Screenshot
 ├── static/
 │   ├── css/styles.css
 │   └── js/game.js           # Game logic
 ├── templates/
 │   ├── base.html
-│   ├── index.html           # Landing page
 │   └── game.html            # Game page
 └── requirements.txt
 ```
@@ -62,8 +65,7 @@ The app uses `data/quotes.json` by default. Override with `B99_QUOTES_JSON=path/
 
 ## API Endpoints
 
-- `GET /` - Landing page
-- `GET /game` - Game page
+- `GET /` - Game page
 - `GET /game/quote` - Get random masked quote
 - `GET /game/characters` - Character list for autocomplete
 - `GET /game/episodes` - Episodes grouped by season
@@ -71,5 +73,3 @@ The app uses `data/quotes.json` by default. Override with `B99_QUOTES_JSON=path/
 - `GET /health` - Health check
 
 ---
-
-*"Every problem has a solution. You just need to be smart enough to find it."* — Captain Raymond Holt
