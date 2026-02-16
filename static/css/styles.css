@@ -1,125 +1,38 @@
-/**
- * Holt Bot - Custom Styles
- * Supplements Tailwind CSS with custom animations and utilities
- */
-
-/* Smooth transitions for all interactive elements */
-* {
-    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-    transition-duration: 150ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Form input focus states */
-input:focus {
+/* Form inputs */
+input:focus, select:focus {
     outline: none;
 }
 
-/* Button press effect */
 button:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: scale(0.99);
 }
 
-/* Loading animation for quote text */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-.loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Blockquote styling */
+/* Quote styling */
 blockquote {
-    position: relative;
-    padding-left: 1.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e2e8f0;
 }
 
-blockquote::before {
-    content: '"';
-    position: absolute;
-    left: 0;
-    top: -0.5rem;
-    font-size: 3rem;
-    color: #d69e2e;
-    opacity: 0.3;
-    font-family: Georgia, serif;
-}
-
-/* Card hover effect */
-.card-hover {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* Autocomplete dropdown animation */
+/* Autocomplete */
 #autocomplete-list {
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
 }
 
 #autocomplete-list:not(.hidden) {
-    animation: slideDown 0.15s ease-out;
+    animation: fadeIn 0.1s ease-out;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+#autocomplete-list .px-4 {
+    padding: 0.5rem 0.75rem;
 }
 
-/* Result animation */
+/* Result display */
 #result:not(.hidden) {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #c4c4c4;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #a3a3a3;
-}
-
-/* Selection color */
-::selection {
-    background-color: #d69e2e;
-    color: #1a365d;
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

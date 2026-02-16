@@ -1,11 +1,7 @@
 """
-Holt Bot - Main FastAPI Application
+B99 Quote Guesser
 
-Features:
-- Minimalist Landing Page (Tailwind CSS)
-- Double Opt-In System (Resend API)
-- "Who Said It?" Game (B99 API)
-- Daily Dispatch Engine (CRON)
+A simple "Who Said It?" game for Brooklyn Nine-Nine fans.
 """
 
 from pathlib import Path
@@ -15,12 +11,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from api.routes import auth_router, game_router
+from api.routes import game_router
 from core.config import settings
 
 # --- App Setup ---
 app = FastAPI(
-    title="Holt Bot",
+    title="B99 Quote Guesser",
     description="Captain Dad will encourage you to be happy",
     version="1.0.0",
 )
@@ -38,30 +34,13 @@ if STATIC_DIR.is_dir():
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # --- Include Routers ---
-app.include_router(auth_router)
 app.include_router(game_router)
 
 
-# --- Landing Page ---
+# --- Game Page (single page) ---
 @app.get("/", response_class=HTMLResponse)
-async def landing_page(request: Request):
-    """
-    Minimalist Landing Page: A formal, high-efficiency UI for user enrollment.
-    """
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-# --- Personalized Holt Image ---
-@app.get("/holt/{name}", response_class=HTMLResponse)
-async def holt_image(request: Request, name: str):
-    """
-    Dynamic page showing Holt GIF with personalized name overlay.
-    Used in emails: {BASE_URL}/holt/Rosa → Shows GIF with "Rosa" overlaid
-    """
-    return templates.TemplateResponse("holt_image.html", {
-        "request": request,
-        "name": name,
-    })
+async def game_page(request: Request):
+    return templates.TemplateResponse("game.html", {"request": request})
 
 
 # --- Health Check ---
@@ -71,11 +50,4 @@ async def health_check():
     Health check endpoint for monitoring.
     Reports status of external services.
     """
-    return {
-        "status": "operational",
-        "services": {
-            "supabase": settings.supabase_configured,
-            "supabase_admin": settings.supabase_admin_configured,
-            "kit": settings.kit_configured,
-        },
-    }
+    return {"status": "operational"}

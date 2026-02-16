@@ -1,3 +1,3 @@
 """
-Holt Bot API Package.
+B99 Quote Guesser API package.
 """

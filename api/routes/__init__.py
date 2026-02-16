@@ -1,8 +1,7 @@
 """
-API Route modules for Holt Bot.
+API Route modules for B99 Quote Guesser.
 """
 
-from api.routes.auth import router as auth_router
 from api.routes.game import router as game_router
 
-__all__ = ["auth_router", "game_router"]
+__all__ = ["game_router"]

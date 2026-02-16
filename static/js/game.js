@@ -1,6 +1,6 @@
 /**
  * "Who Said It?" Game Logic
- * Interactive engagement feature for Holt Bot
+ * Brooklyn 99 Quote Guesser
  */
 
 // Game State
@@ -28,6 +28,7 @@ const bestStreakEl = document.getElementById('best-streak');
 document.addEventListener('DOMContentLoaded', () => {
     loadCharacters();
     loadEpisodes();
+    loadStreakFromStorage();
     loadNewQuote();
     setupEventListeners();
 });
@@ -42,6 +43,20 @@ async function loadCharacters() {
         console.error('Failed to load characters:', error);
         characters = ['Jake', 'Amy', 'Rosa', 'Charles', 'Captain Holt', 'Sergeant Jeffords', 'Gina', 'Hitchcock', 'Scully'];
     }
+}
+
+// Load streak from localStorage
+function loadStreakFromStorage() {
+    currentStreak = parseInt(localStorage.getItem('holt_streak') || '0', 10);
+    bestStreak = parseInt(localStorage.getItem('holt_best_streak') || '0', 10);
+    if (streakCountEl) streakCountEl.textContent = currentStreak;
+    if (bestStreakEl) bestStreakEl.textContent = bestStreak;
+}
+
+// Save streak to localStorage
+function saveStreakToStorage() {
+    localStorage.setItem('holt_streak', String(currentStreak));
+    localStorage.setItem('holt_best_streak', String(bestStreak));
 }
 
 // Load episodes grouped by season
@@ -217,6 +232,8 @@ async function submitAnswer() {
 
         if (streakCountEl) streakCountEl.textContent = currentStreak;
         if (bestStreakEl) bestStreakEl.textContent = bestStreak;
+
+        saveStreakToStorage();
 
         // Build result message
         let resultHtml = '';

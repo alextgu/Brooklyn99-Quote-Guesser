@@ -77,6 +77,22 @@ ALL_CHARACTERS = sorted(
 )
 
 
+def get_canonical_character(guess: str) -> Optional[str]:
+    """
+    Map a guess (e.g. 'Pontiac Bandit') to the canonical character name (e.g. 'Doug Judy').
+    Returns the canonical name if the guess matches any alias, else None.
+    """
+    guess_lower = guess.strip().lower()
+    if not guess_lower:
+        return None
+    for canonical, aliases in CHARACTER_ALIASES.items():
+        if guess_lower == canonical.lower():
+            return canonical
+        if guess_lower in (a.lower() for a in aliases):
+            return canonical
+    return None
+
+
 def get_speaker_aliases(character: str) -> set[str]:
     """Get all name variations for a character."""
     aliases = set()
@@ -242,10 +258,19 @@ class QuotesClient:
                     self.quotes_by_character[character] = []
                 self.quotes_by_character[character].append(quote)
             
-            # Build sorted character list
-            self._characters = sorted(self.quotes_by_character.keys())
+            # Build character list: include all aliases for autocomplete/search
+            seen = set()
+            char_list = []
+            for canon in sorted(self.quotes_by_character.keys()):
+                aliases = CHARACTER_ALIASES.get(canon, [canon])
+                for name in aliases:
+                    key = name.lower().strip()
+                    if key and key not in seen:
+                        seen.add(key)
+                        char_list.append(name)
+            self._characters = sorted(char_list, key=lambda x: x.lower())
             
-            print(f"Loaded {len(self.quotes)} quotes from {len(self._characters)} characters")
+            print(f"Loaded {len(self.quotes)} quotes from {len(self.quotes_by_character)} characters ({len(self._characters)} searchable names)")
         except Exception as e:
             print(f"Error loading quotes: {e}")
     
@@ -284,25 +309,6 @@ class QuotesClient:
         
         return results
     
-    def get_quote_for_day(self, name: str, day_count: int, character: Optional[str] = None) -> Optional[Quote]:
-        """
-        Get a consistent quote for a user's day (same user + day = same quote).
-        Synchronous version for daily emails.
-        """
-        if character:
-            quotes = self.quotes_by_character.get(character, [])
-        else:
-            quotes = self.quotes
-        
-        if not quotes:
-            return None
-        
-        random.seed(f"{name}-{day_count}-quote")
-        quote = random.choice(quotes)
-        random.seed()
-        
-        return quote
-    
     def get_quote_count(self, character: Optional[str] = None) -> int:
         """Get total number of quotes."""
         if character:
@@ -312,25 +318,3 @@ class QuotesClient:
 
 # Singleton instance
 quotes_client = QuotesClient()
-
-
-def get_random_quote_sync() -> Optional[Quote]:
-    """
-    Get a random quote for today - UNIVERSAL for all users.
-    Uses today's date as seed so the same quote is returned all day.
-    
-    This ensures all newsletter recipients get the same daily challenge.
-    """
-    from datetime import date
-    
-    quotes = quotes_client.quotes
-    if not quotes:
-        return None
-    
-    # Seed with today's date for consistency across all users
-    today = date.today().isoformat()
-    random.seed(f"daily-quote-{today}")
-    quote = random.choice(quotes)
-    random.seed()
-    
-    return quote

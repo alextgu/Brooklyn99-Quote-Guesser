@@ -3,57 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Holt Bot{% endblock %}</title>
+    <title>{% block title %}Brooklyn 99 Quote Guesser{% endblock %}</title>
     
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'holt-navy': '#1a365d',
-                        'holt-gold': '#d69e2e',
-                        'holt-gray': '#2d3748',
-                    },
-                    fontFamily: {
-                        'serif': ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+                        'holt-navy': '#0f172a',
+                        'holt-gold': '#ca8a04',
                     }
                 }
             }
         }
     </script>
     
-    <!-- Custom styles -->
     <link rel="stylesheet" href="/static/css/styles.css">
     
     {% block head %}{% endblock %}
 </head>
-<body class="h-full bg-gray-50 font-serif text-holt-gray">
-    <div class="min-h-full flex flex-col">
-        <!-- Header -->
-        <header class="bg-holt-navy text-white py-4 shadow-lg">
-            <div class="max-w-4xl mx-auto px-4 flex items-center justify-between">
-                <a href="/" class="text-xl font-bold tracking-wide">HOLT</a>
-                <nav class="space-x-6 text-sm">
-                    <a href="/" class="hover:text-holt-gold transition-colors">Home</a>
-                    <a href="/game" class="hover:text-holt-gold transition-colors">Game</a>
-                </nav>
+<body class="h-full bg-slate-50 text-slate-800 antialiased">
+    <div class="min-h-full">
+        <header class="border-b border-slate-200 bg-white">
+            <div class="max-w-xl mx-auto px-4 py-3">
+                <span class="font-semibold text-slate-900">B99 Quote Guesser</span>
             </div>
         </header>
         
-        <!-- Main Content -->
-        <main class="flex-grow">
+        <main>
             {% block content %}{% endblock %}
         </main>
-        
-        <!-- Footer -->
-        <footer class="bg-holt-navy text-gray-300 py-6 mt-auto">
-            <div class="max-w-4xl mx-auto px-4 text-center text-sm">
-                <p>"Every day is a chance to be extraordinary."</p>
-                <p class="mt-2 text-gray-400">— Captain Raymond Holt</p>
-            </div>
-        </footer>
     </div>
     
     {% block scripts %}{% endblock %}

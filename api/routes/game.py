@@ -1,6 +1,6 @@
 """
 Game routes: 'Who Said It?' quote challenge.
-Interactive engagement feature using B99 quotes.
+Brooklyn 99 quote guesser.
 """
 
 from fastapi import APIRouter, Request, Query
@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from typing import Optional
 
-from core.quotes import quotes_client, Quote, get_random_quote_sync
+from core.quotes import quotes_client, Quote, get_canonical_character
 
 router = APIRouter(prefix="/game", tags=["game"])
 
@@ -18,19 +18,10 @@ TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
-@router.get("/", response_class=HTMLResponse)
-async def game_page(request: Request):
-    """
-    Render the 'Who Said It?' game page.
-    """
-    return templates.TemplateResponse("game.html", {"request": request})
-
-
 @router.get("/quote")
 async def get_game_quote(hard_mode: bool = False):
     """
-    Get today's universal quote for the game.
-    Same quote for all users (email + website) - changes daily.
+    Get a random quote for the game.
     
     Args:
         hard_mode: If true, hides episode name (player must guess character + episode)
@@ -45,8 +36,7 @@ async def get_game_quote(hard_mode: bool = False):
         "answer_season": 1-8 or null
     }
     """
-    # Universal daily quote - same for everyone, same as email
-    quote = get_random_quote_sync()
+    quote = await quotes_client.get_random_quote()
 
     if not quote:
         return {
@@ -136,14 +126,19 @@ async def verify_answer(
     """
     import random
     
-    # Check character (case-insensitive, partial matches allowed)
+    # Check character: use alias mapping (e.g. "Pontiac Bandit" -> "Doug Judy")
     guess_char_clean = guess_character.strip().lower()
     answer_char_clean = answer_character.strip().lower()
-    character_correct = (
-        guess_char_clean == answer_char_clean 
-        or guess_char_clean in answer_char_clean 
-        or answer_char_clean in guess_char_clean
-    )
+    guess_canonical = get_canonical_character(guess_character)
+    if guess_canonical:
+        character_correct = guess_canonical.lower() == answer_char_clean
+    else:
+        # Fallback: substring match for characters not in alias map
+        character_correct = (
+            guess_char_clean == answer_char_clean
+            or guess_char_clean in answer_char_clean
+            or answer_char_clean in guess_char_clean
+        )
     
     # Check episode if provided (exact match on episode name)
     episode_correct = False
@@ -177,7 +172,7 @@ async def verify_answer(
         ]
     
     message = random.choice(messages)
-    
+
     return {
         "correct": all_correct,
         "character_correct": character_correct,
